@@ -17,7 +17,7 @@ This represents a single link saved by a user.
 | `url` | String | 
 | `title` | String | 
 | `tags` | String Array | 
-| `status` | String |
+| `read_status` | String |
 | `created_at` | Date |
 
 
@@ -28,26 +28,34 @@ This represents a single link saved by a user.
     - **Example Request:**
     ```json
     {
-        "int": "1",
-        "url": "https://example.com",
-        "title": "Fetched Title",
-        "tags": ["documentation", "learning"],
-        "status": "read_later",
-        "created_at": "2026-05-27T16:00:00Z"
+    "url": "https://example.com",
+    "tags": ["documentation", "learning"],
+    "read_status": "unread"
+    }
+    ```
+    - **Response:**
+    ```json
+    {
+    "id": 1,
+    "url": "https://example.com",
+    "title": "Example Domain",
+    "tags": ["documentation", "learning"],
+    "read_status": "unread",
+    "created_at": "2026-05-27T16:00:00Z"
     }
     ```
 
 - ### GET /api/links
-    - **Parameters (if filter by tags):** `?status=read_later&tag=learning`
+    - **Parameters (if filter by tags):** `?status=unread&tag=learning`
     - **Example Response:**
     ```json
     [
         {
-        "id": "1",
+        "id": 1,
         "url": "https://example.com",
         "title": "Example Domain",
         "tags": ["documentation", "learning"],
-        "status": "read_later",
+        "read_status": "unread",
         "created_at": "2026-05-27T23:00:00Z"
         }
     ]
@@ -57,14 +65,49 @@ This represents a single link saved by a user.
     - **Example Request:** 
     ```json
     {
-        "status": "read",
+        "read_status": "read",
         "title": "Updated Custom Title"
     }
     ```
 
 - ### DELETE /api/links/:id
 
+## SQL Queries for API Endpoints
+
+- ### Post
+```sql
+INSERT INTO links (url, title, tags, read_status, created_at) 
+VALUES (?, ?, json(?), ?, CURRENT_TIMESTAMP)
+RETURNING *;
+```
+
+- ### Get
+```sql
+SELECT * FROM links 
+WHERE read_status = 'unread' 
+  AND EXISTS (
+      SELECT 1 FROM json_each(tags) WHERE value = 'learning'
+  );
+```
+
+- ### Patch
+```sql
+UPDATE links 
+SET read_status = ?, title = ? 
+WHERE id = ?
+RETURNING *;
+```
+
+- ### Delete
+```sql
+DELETE FROM links 
+WHERE id = ?;
+```
 
 ## Architecture Diagram
 
 ![diagram](./arch_diagram.png)
+
+## Submission Form Sketch
+
+![diagram](./submission_form.png)
