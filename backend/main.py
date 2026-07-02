@@ -49,6 +49,19 @@ def create_link(link: LinkCreate):
         "date": date,
     }
 
-@app.get("/")
-def read_root():
-    return {"message": "Link Saver alive"}
+@app.get("/links")
+def list_links():
+    conn = get_db()
+    rows = conn.execute("SELECT * FROM links ORDER BY date DESC").fetchall()
+    conn.close()
+    return [
+        {
+            "id": row["id"],
+            "url": row["url"],
+            "title": row["title"],
+            "tags": json.loads(row["tags"]),
+            "status": row["status"],
+            "date": row["date"],
+        }
+        for row in rows
+    ]
