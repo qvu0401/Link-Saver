@@ -6,6 +6,16 @@
 </head>
 <body>
     <h1>Link Saver</h1>
+    <div id="add-form">
+        <input type="text" id="url-input" placeholder="Paste a URL">
+        <span id="url-status"></span>
+        <input type="text" id="tags-input" placeholder="tags, comma, separated">
+        <select id="status-input">
+            <option value="read_later">Read Later</option>
+            <option value="read">Read</option>
+        </select>
+        <button id="add-button">Save</button>
+    </div>
     <div id="links"></div>
 
     <script>
@@ -41,7 +51,66 @@
             }
         }
 
+        async function addLink() {
+            const urlInput = document.getElementById("url-input");
+            const tagsInput = document.getElementById("tags-input");
+            const statusInput = document.getElementById("status-input");
+
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            const tags = tagsInput.value
+                .split(",")
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+
+            const response = await fetch("/api/links", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    url: url,
+                    tags: tags,
+                    status: statusInput.value
+                })
+            });
+
+            if (!response.ok) {
+                alert("Failed to save link");
+                return;
+            }
+
+            urlInput.value = "";
+            tagsInput.value = "";
+            document.getElementById("url-status").textContent = "";
+            loadLinks();
+        }
+
+        function validateURL() {
+            const urlInput = document.getElementById("url-input");
+            const urlStatus = document.getElementById("url-status");
+
+            const value = urlInput.value.trim();
+
+            if (value === "") {
+                urlStatus.textContent = "";
+                return;
+            }
+
+            if (URL.canParse(value)) {
+                urlStatus.textContent = "valid URL";
+            } else {
+                urlStatus.textContent = "not a valid URL";
+            }
+        }
+
         loadLinks();
+
+        document.getElementById("add-button").addEventListener("click", addLink);
+
+        document.getElementById("url-input").addEventListener("input", validateURL);
     </script>
 </body>
 </html>
