@@ -14,7 +14,7 @@ def init_db():
             title TEXT,
             tags TEXT,
             status TEXT NOT NULL DEFAULT 'read_later',
-            created_at TEXT NOT NULL
+            date TEXT NOT NULL
         )
     """)
     conn.commit()

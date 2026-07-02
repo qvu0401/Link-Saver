@@ -17,8 +17,8 @@ This represents a single link saved by a user.
 | `url` | String | 
 | `title` | String | 
 | `tags` | String Array | 
-| `read_status` | String |
-| `created_at` | Date |
+| `status` | String |
+| `date` | Date |
 
 
 
@@ -30,7 +30,7 @@ This represents a single link saved by a user.
     {
     "url": "https://example.com",
     "tags": ["documentation", "learning"],
-    "read_status": "unread"
+    "status": "read_later"
     }
     ```
     - **Response:**
@@ -40,8 +40,8 @@ This represents a single link saved by a user.
     "url": "https://example.com",
     "title": "Example Domain",
     "tags": ["documentation", "learning"],
-    "read_status": "unread",
-    "created_at": "2026-05-27T16:00:00Z"
+    "status": "read_later",
+    "date": "2026-05-27T16:00:00Z"
     }
     ```
 
@@ -55,8 +55,8 @@ This represents a single link saved by a user.
         "url": "https://example.com",
         "title": "Example Domain",
         "tags": ["documentation", "learning"],
-        "read_status": "unread",
-        "created_at": "2026-05-27T23:00:00Z"
+        "status": "read_later",
+        "date": "2026-05-27T23:00:00Z"
         }
     ]
     ```
@@ -65,7 +65,7 @@ This represents a single link saved by a user.
     - **Example Request:** 
     ```json
     {
-        "read_status": "read",
+        "status": "read",
         "title": "Updated Custom Title"
     }
     ```
@@ -76,7 +76,7 @@ This represents a single link saved by a user.
 
 - ### Post
 ```sql
-INSERT INTO links (url, title, tags, read_status, created_at) 
+INSERT INTO links (url, title, tags, read_status, date) 
 VALUES (?, ?, json(?), ?, CURRENT_TIMESTAMP)
 RETURNING *;
 ```
