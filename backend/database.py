@@ -13,7 +13,7 @@ def init_db():
             url TEXT NOT NULL UNIQUE,
             title TEXT,
             tags TEXT,
-            status TEXT NOT NULL DEFAULT 'read_later',
+            status TEXT NOT NULL DEFAULT 'unread',
             date TEXT NOT NULL
         )
     """)

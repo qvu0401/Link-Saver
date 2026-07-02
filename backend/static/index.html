@@ -6,23 +6,78 @@
 </head>
 <body>
     <h1>Link Saver</h1>
+    
+    <h3>Add a link</h3>
     <div id="add-form">
         <input type="text" id="url-input" placeholder="Paste a URL">
         <span id="url-status"></span>
         <input type="text" id="tags-input" placeholder="tags, comma, separated">
         <select id="status-input">
-            <option value="read_later">Read Later</option>
+            <option value="unread">Read Later</option>
             <option value="read">Read</option>
         </select>
         <button id="add-button">Save</button>
     </div>
+
+    <h2>Your links:</h2>
+
+    <h4>Filter by:</h4>
+    <div id="controls"> 
+        <input type="text" id="search-input" placeholder="Search titles...">
+        <input type="text" id="tag-filter" placeholder="Filter by tag">
+        <select id="status-filter">
+            <option value="">Read & Unread</option>
+            <option value="unread">Read Later</option>
+            <option value="read">Read</option>
+        </select>
+        <button id="filter-button">Filter</button>
+    </div>
+
+    <br><br>
+
     <div id="links"></div>
 
     <script>
+        let allLinks = []; 
+
         async function loadLinks() {
             const response = await fetch("/api/links");
-            const links = await response.json();
-            renderLinks(links);
+            allLinks = await response.json();
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchText = document.getElementById("search-input").value.trim().toLowerCase();
+            const tagFilter = document.getElementById("tag-filter").value.trim().toLowerCase();
+            const statusFilter = document.getElementById("status-filter").value;
+
+            let filtered = allLinks;
+
+            if (searchText) {
+                filtered = filtered.filter(link =>
+                    link.title.toLowerCase().includes(searchText)
+                );
+            }
+
+            if (tagFilter) {
+                const filterTags = tagFilter
+                    .split(",")
+                    .map(t => t.trim().toLowerCase())
+                    .filter(t => t.length > 0);
+
+                filtered = filtered.filter(link => {
+                    const linkTags = link.tags.map(t => t.toLowerCase());
+                    return filterTags.every(ft =>
+                        linkTags.some(lt => lt === ft)
+                    );
+                });
+            }
+
+            if (statusFilter) {
+                filtered = filtered.filter(link => link.status === statusFilter);
+            }
+
+            renderLinks(filtered);
         }
 
         function renderLinks(links) {
@@ -43,10 +98,29 @@
                 a.target = "_blank";
 
                 const meta = document.createElement("div");
-                meta.textContent = `${link.status} · ${link.tags.join(", ")}`;
+                const date = new Date(link.date).toLocaleString();
+                meta.textContent = `${link.status} · ${link.tags.join(", ")} · ${date}`;
+
+                // Mark read / unread toggle
+                const readButton = document.createElement("button");
+                readButton.textContent = link.status === "read" ? "Mark unread" : "Mark read";
+                readButton.addEventListener("click", () => toggleRead(link));
+
+                // Edit tags
+                const tagsButton = document.createElement("button");
+                tagsButton.textContent = "Edit tags";
+                tagsButton.addEventListener("click", () => editTags(link));
+
+                // Delete
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () => deleteLink(link.id));
 
                 div.appendChild(a);
                 div.appendChild(meta);
+                div.appendChild(readButton);
+                div.appendChild(tagsButton);
+                div.appendChild(deleteButton);
                 container.appendChild(div);
             }
         }
@@ -88,6 +162,52 @@
             loadLinks();
         }
 
+        async function toggleRead(link) {
+            const newStatus = link.status === "read" ? "unread" : "read";
+            const response = await fetch(`/api/links/${link.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (!response.ok) {
+                alert("Failed to update status");
+                return;
+            }
+            loadLinks();
+        }
+
+        async function deleteLink(id) {
+            if (!confirm("Delete this link?")) return;
+            const response = await fetch(`/api/links/${id}`, { method: "DELETE" });
+            if (!response.ok) {
+                alert("Failed to delete");
+                return;
+            }
+            loadLinks();
+        }
+
+        async function editTags(link) {
+            const current = link.tags.join(", ");
+            const input = prompt("Edit tags (comma separated):", current);
+            if (input === null) return;  // user cancelled
+
+            const tags = input
+                .split(",")
+                .map(t => t.trim())
+                .filter(t => t.length > 0);
+
+            const response = await fetch(`/api/links/${link.id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tags: tags })
+            });
+            if (!response.ok) {
+                alert("Failed to update tags");
+                return;
+            }
+            loadLinks();
+        }
+
         function validateURL() {
             const urlInput = document.getElementById("url-input");
             const urlStatus = document.getElementById("url-status");
@@ -111,6 +231,8 @@
         document.getElementById("add-button").addEventListener("click", addLink);
 
         document.getElementById("url-input").addEventListener("input", validateURL);
+
+        document.getElementById("filter-button").addEventListener("click", applyFilters);
     </script>
 </body>
 </html>

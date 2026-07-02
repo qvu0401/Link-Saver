@@ -30,7 +30,7 @@ This represents a single link saved by a user.
     {
     "url": "https://example.com",
     "tags": ["documentation", "learning"],
-    "status": "read_later"
+    "status": "unread"
     }
     ```
     - **Response:**
@@ -40,7 +40,7 @@ This represents a single link saved by a user.
     "url": "https://example.com",
     "title": "Example Domain",
     "tags": ["documentation", "learning"],
-    "status": "read_later",
+    "status": "unread",
     "date": "2026-05-27T16:00:00Z"
     }
     ```
@@ -55,7 +55,7 @@ This represents a single link saved by a user.
         "url": "https://example.com",
         "title": "Example Domain",
         "tags": ["documentation", "learning"],
-        "status": "read_later",
+        "status": "unread",
         "date": "2026-05-27T23:00:00Z"
         }
     ]
