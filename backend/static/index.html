@@ -160,7 +160,12 @@
             });
 
             if (!response.ok) {
-                alert("Failed to save link");
+                try {
+                    const errorData = await response.json();
+                    alert(errorData.detail || "Failed to save link");
+                } catch (e) {
+                    alert("Failed to save link");
+                }
                 return;
             }
 
@@ -219,6 +224,7 @@
         async function editTitle(link) {
             const input = prompt("Enter a new title:");
             if (input === null) return;
+            if (input == "") return;
 
             const response = await fetch(`/api/links/${link.id}`, {
                 method: "PATCH",

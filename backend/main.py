@@ -21,7 +21,7 @@ def sqlite_integrity_exception_handler(request: Request, exc: sqlite3.IntegrityE
     if "UNIQUE constraint failed" in error_msg:
         return JSONResponse(
             status_code = 409,
-            content={"detail": f"Duplicate value error: {error_msg.split(': ')[-1]} already exists"},
+            content={"detail": f"This URL already exists"},
         )
 
     return JSONResponse(
