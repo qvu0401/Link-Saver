@@ -7,7 +7,7 @@ A web app to save URLs with titles, tags, and read/unread status. Paste a link a
 **Prerequisites:** Docker and Docker Compose installed.
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/qvu0401/Link-Saver.git
 cd "Link Saver"
 docker compose up --build
 ```
@@ -24,45 +24,23 @@ Your saved links persist in a Docker volume and survive restarts. To wipe all da
 docker compose down -v
 ```
 
-## API Examples
+## 📑 API Endpoints
 
-**Save a link**
-```bash
-curl -X POST http://localhost:8000/api/links \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com", "tags": ["reading"], "status": "unread"}'
+### Base URL
+```text
+http://localhost:8000/api
 ```
 
-**Get all links**
-```bash
-curl http://localhost:8000/api/links
-```
-
-**Filter by status**
-```bash
-curl http://localhost:8000/api/links?status=unread
-```
-
-**Filter by tag**
-```bash
-curl http://localhost:8000/api/links?tag=reading
-```
-
-**Update a link (mark as read, edit title, or change tags)**
-```bash
-curl -X PATCH http://localhost:8000/api/links/1 \
-  -H "Content-Type: application/json" \
-  -d '{"status": "read"}'
-```
-
-**Delete a link**
-```bash
-curl -X DELETE http://localhost:8000/api/links/1
-```
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| **POST** | `/links` | Save a new link (title auto-fetched) |
+| **GET** | `/links` | List all links |
+| **GET** | `/links?status=unread` | Filter by status (`read` or `unread`) |
+| **GET** | `/links?tag=reading` | Filter by tag |
+| **PATCH** | `/links/:id` | Update title, status, or tags |
+| **DELETE** | `/links/:id` | Delete a link |
 
 ## Known Limitations
 
-- **SQLite is local to each host** — each machine that runs the app has its own separate database. There is no shared or synced data between machines.
-- **Not suitable for multiple backend instances** — SQLite is a file-based database. Running more than one backend container pointing at the same file will cause conflicts.
-- **No authentication** — all links are visible to anyone who can reach port 8000.
-- **Title fetching can fail** — if a URL blocks HTTP requests or times out, the URL itself is used as the title.
+- No authentication, all links are visible to anyone who can reach port 8000.
+- Title fetching can fail. If a URL blocks HTTP requests or times out, the URL itself is used as the title.
