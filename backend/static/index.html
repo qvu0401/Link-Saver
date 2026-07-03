@@ -106,6 +106,11 @@
                 readButton.textContent = link.status === "read" ? "Mark unread" : "Mark read";
                 readButton.addEventListener("click", () => toggleRead(link));
 
+                // Edit title
+                const titleButton = document.createElement("button");
+                titleButton.textContent = "Edit title";
+                titleButton.addEventListener("click", () => editTitle(link));
+
                 // Edit tags
                 const tagsButton = document.createElement("button");
                 tagsButton.textContent = "Edit tags";
@@ -119,9 +124,12 @@
                 div.appendChild(a);
                 div.appendChild(meta);
                 div.appendChild(readButton);
+                div.appendChild(titleButton);
                 div.appendChild(tagsButton);
                 div.appendChild(deleteButton);
                 container.appendChild(div);
+
+                container.appendChild(document.createElement("br"));
             }
         }
 
@@ -203,6 +211,22 @@
             });
             if (!response.ok) {
                 alert("Failed to update tags");
+                return;
+            }
+            loadLinks();
+        }
+
+        async function editTitle(link) {
+            const input = prompt("Enter a new title:");
+            if (input === null) return;
+
+            const response = await fetch(`/api/links/${link.id}`, {
+                method: "PATCH",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ title: input })
+            });
+            if (!response.ok) {
+                alert("Failed to update title");
                 return;
             }
             loadLinks();
