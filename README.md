@@ -24,7 +24,7 @@ Your saved links persist in a Docker volume and survive restarts. To wipe all da
 docker compose down -v
 ```
 
-## 📑 API Endpoints
+## API Endpoints
 
 ### Base URL
 ```text
