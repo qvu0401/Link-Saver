@@ -9,7 +9,7 @@ A web app to save URLs with titles, tags, and read/unread status. Paste a link a
 ```bash
 git clone https://github.com/qvu0401/Link-Saver.git
 cd "Link Saver"
-docker compose up --build
+docker compose up
 ```
 
 Then open http://localhost in your browser (port 80).
@@ -20,7 +20,7 @@ To stop the app:
 docker compose down
 ```
 
-Your saved links persist in a Docker volume and survive restarts. To wipe all data:
+To clear all data (links)
 ```bash
 docker compose down -v
 ```
