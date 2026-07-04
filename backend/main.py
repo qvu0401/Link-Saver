@@ -31,12 +31,13 @@ def sqlite_integrity_exception_handler(request: Request, exc: sqlite3.IntegrityE
 @app.post("/api/links", status_code=201)
 def create_link(link: LinkCreate):
     date = datetime.now(timezone.utc).isoformat()
-    title = fetch_title(link.url)
-    
+    url = str(link.url)
+    title = fetch_title(url)
+
     with get_db() as conn:
         cursor = conn.execute(
             "INSERT INTO links (url, title, tags, status, date) VALUES (?, ?, ?, ?, ?)",
-            (link.url, title, json.dumps(link.tags), link.status.value, date)
+            (url, title, json.dumps(link.tags), link.status.value, date)
         )
         conn.commit()
         new_id = cursor.lastrowid
@@ -44,7 +45,7 @@ def create_link(link: LinkCreate):
 
     return {
         "id": new_id,
-        "url": link.url,
+        "url": url,
         "title": title,
         "tags": link.tags,
         "status": link.status.value,

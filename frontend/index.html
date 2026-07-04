@@ -194,6 +194,10 @@
                 alert("Please enter a URL");
                 return;
             }
+            if (!URL.canParse(url)) {
+                alert("Please enter a valid URL");
+                return;
+            }
 
             const tags = tagsInput.value
                 .split(",")
