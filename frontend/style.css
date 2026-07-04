@@ -1,0 +1,86 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+    color: #111;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+header p { color: #666; font-size: 0.875rem; margin-bottom: 1.5rem; }
+
+.card { margin-bottom: 1.25rem; }
+.section-label { font-size: 1rem; font-weight: 700; color: #111; margin-bottom: 0.5rem; }
+
+.form-row, .filter-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto auto;
+    gap: 0.5rem;
+    align-items: start;
+}
+
+.input-group { display: flex; flex-direction: column; gap: 0.2rem; }
+
+input[type="text"], select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    width: 100%;
+}
+
+input[type="text"]:focus, select:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: -1px;
+    border-color: #0066cc;
+}
+
+
+.url-status { font-size: 0.72rem; height: 1rem; }
+.url-status.valid { color: green; }
+.url-status.invalid { color: #cc0000; }
+
+button {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+button:hover { background: #e8e8e8; }
+.btn-primary { background: #0066cc; color: white; border-color: #0066cc; }
+.btn-primary:hover { background: #0052a3; border-color: #0052a3; }
+.btn-danger { color: #cc0000; }
+.btn-danger:hover { background: #fff0f0; border-color: #cc0000; }
+
+.links-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem; }
+.links-count { font-size: 0.8rem; color: #666; }
+
+.link-item { border: 1px solid #ddd; border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+
+.link-title a { font-weight: 600; color: #0066cc; text-decoration: none; }
+.link-title a:hover { text-decoration: underline; }
+
+.link-meta { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; margin-top: 0.35rem; font-size: 0.75rem; }
+
+.badge { font-weight: 600; }
+.badge-read { color: green; }
+.badge-unread { color: #0066cc; }
+
+.tag { background: #f0f0f0; padding: 0.1rem 0.4rem; border-radius: 3px; }
+.link-date { color: #666; margin-left: auto; }
+
+.link-divider { border: none; border-top: 1px solid #eee; margin: 0.6rem 0; }
+
+.link-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.link-actions button { font-size: 0.78rem; padding: 0.25rem 0.6rem; }
+
+.empty-state { text-align: center; padding: 2rem; color: #666; }

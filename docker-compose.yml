@@ -6,5 +6,12 @@ services:
     volumes:
       - database:/app/data
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
 volumes:
   database:

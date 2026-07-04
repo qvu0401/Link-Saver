@@ -12,7 +12,8 @@ cd "Link Saver"
 docker compose up --build
 ```
 
-Then open http://localhost:8000 in your browser.
+Then open http://localhost in your browser (port 80).
+The backend API is available at http://localhost:8000/api.
 
 To stop the app:
 ```bash

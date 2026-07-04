@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi.staticfiles import StaticFiles
 
 from database import init_db, get_db
 from models import LinkCreate, LinkUpdate
@@ -125,5 +124,3 @@ def update_link(link_id: int, update: LinkUpdate):
         "status": row["status"],
         "date": row["date"],
     }
-
-app.mount("/", StaticFiles(directory="static", html=True), name="static")

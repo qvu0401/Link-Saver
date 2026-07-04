@@ -2,43 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Saver</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Link Saver</h1>
-    
-    <h3>Add a link</h3>
-    <div id="add-form">
-        <input type="text" id="url-input" placeholder="Paste a URL">
-        <span id="url-status"></span>
-        <input type="text" id="tags-input" placeholder="tags, comma, separated">
-        <select id="status-input">
-            <option value="unread">Read Later</option>
-            <option value="read">Read</option>
-        </select>
-        <button id="add-button">Save</button>
+    <div class="container">
+        <header>
+            <h1>Link Saver</h1>
+            <p>Save and organize your links</p>
+        </header>
+
+        <div class="card">
+            <div class="section-label">Add a link</div>
+            <div class="form-row">
+                <div class="input-group">
+                    <input type="text" id="url-input" placeholder="Paste a URL...">
+                    <span class="url-status" id="url-status"></span>
+                </div>
+                <input type="text" id="tags-input" placeholder="tags, comma, separated">
+                <select id="status-input">
+                    <option value="unread">Read Later</option>
+                    <option value="read">Read</option>
+                </select>
+                <button class="btn-primary" id="add-button">Save</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-label">Filter</div>
+            <div class="filter-row">
+                <input type="text" id="search-input" placeholder="Search titles...">
+                <input type="text" id="tag-filter" placeholder="Filter by tag">
+                <select id="status-filter">
+                    <option value="">Read &amp; Unread</option>
+                    <option value="unread">Unread</option>
+                    <option value="read">Read</option>
+                </select>
+                <button class="btn-primary" id="filter-button">Filter</button>
+            </div>
+        </div>
+
+        <div class="links-header">
+            <h2>Your links</h2>
+            <span class="links-count" id="links-count"></span>
+        </div>
+
+        <div id="links"></div>
     </div>
-
-    <h2>Your links:</h2>
-
-    <h4>Filter by:</h4>
-    <div id="controls"> 
-        <input type="text" id="search-input" placeholder="Search titles...">
-        <input type="text" id="tag-filter" placeholder="Filter by tag">
-        <select id="status-filter">
-            <option value="">Read & Unread</option>
-            <option value="unread">Read Later</option>
-            <option value="read">Read</option>
-        </select>
-        <button id="filter-button">Filter</button>
-    </div>
-
-    <br><br>
-
-    <div id="links"></div>
 
     <script>
-        let allLinks = []; 
+        let allLinks = [];
 
         async function loadLinks() {
             const response = await fetch("/api/links");
@@ -82,54 +96,91 @@
 
         function renderLinks(links) {
             const container = document.getElementById("links");
+            const countEl = document.getElementById("links-count");
             container.innerHTML = "";
 
+            countEl.textContent = links.length === 1 ? "1 link" : `${links.length} links`;
+
             if (links.length === 0) {
-                container.textContent = "No links found.";
+                container.innerHTML = '<div class="empty-state"><p>No links found.</p></div>';
                 return;
             }
 
             for (const link of links) {
-                const div = document.createElement("div");
+                const item = document.createElement("div");
+                item.className = "link-item";
 
+                // Title row
+                const titleRow = document.createElement("div");
+                titleRow.className = "link-title";
                 const a = document.createElement("a");
                 a.href = link.url;
                 a.textContent = link.title;
                 a.target = "_blank";
+                a.rel = "noopener noreferrer";
+                titleRow.appendChild(a);
 
+                // Meta row
                 const meta = document.createElement("div");
-                const date = new Date(link.date).toLocaleString();
-                meta.textContent = `${link.status} · ${link.tags.join(", ")} · ${date}`;
+                meta.className = "link-meta";
 
-                // Mark read / unread toggle
-                const readButton = document.createElement("button");
-                readButton.textContent = link.status === "read" ? "Mark unread" : "Mark read";
-                readButton.addEventListener("click", () => toggleRead(link));
+                const statusBadge = document.createElement("span");
+                statusBadge.className = `badge ${link.status === "read" ? "badge-read" : "badge-unread"}`;
+                statusBadge.textContent = link.status === "read" ? "Read" : "Unread";
+                meta.appendChild(statusBadge);
 
-                // Edit title
-                const titleButton = document.createElement("button");
-                titleButton.textContent = "Edit title";
-                titleButton.addEventListener("click", () => editTitle(link));
+                for (const tag of link.tags) {
+                    const tagEl = document.createElement("span");
+                    tagEl.className = "tag";
+                    tagEl.textContent = tag;
+                    meta.appendChild(tagEl);
+                }
 
-                // Edit tags
-                const tagsButton = document.createElement("button");
-                tagsButton.textContent = "Edit tags";
-                tagsButton.addEventListener("click", () => editTags(link));
+                const dateEl = document.createElement("span");
+                dateEl.className = "link-date";
+                dateEl.textContent = new Date(link.date).toLocaleDateString(undefined, {
+                    year: "numeric", month: "short", day: "numeric"
+                });
+                meta.appendChild(dateEl);
 
-                // Delete
-                const deleteButton = document.createElement("button");
-                deleteButton.textContent = "Delete";
-                deleteButton.addEventListener("click", () => deleteLink(link.id));
+                // Divider
+                const divider = document.createElement("hr");
+                divider.className = "link-divider";
 
-                div.appendChild(a);
-                div.appendChild(meta);
-                div.appendChild(readButton);
-                div.appendChild(titleButton);
-                div.appendChild(tagsButton);
-                div.appendChild(deleteButton);
-                container.appendChild(div);
+                // Actions row
+                const actions = document.createElement("div");
+                actions.className = "link-actions";
 
-                container.appendChild(document.createElement("br"));
+                const readBtn = document.createElement("button");
+                readBtn.className = `btn-toggle-read${link.status === "read" ? " is-read" : ""}`;
+                readBtn.textContent = link.status === "read" ? "Mark unread" : "Mark read";
+                readBtn.addEventListener("click", () => toggleRead(link));
+
+                const titleBtn = document.createElement("button");
+                titleBtn.className = "btn-ghost";
+                titleBtn.textContent = "Edit title";
+                titleBtn.addEventListener("click", () => editTitle(link));
+
+                const tagsBtn = document.createElement("button");
+                tagsBtn.className = "btn-ghost";
+                tagsBtn.textContent = "Edit tags";
+                tagsBtn.addEventListener("click", () => editTags(link));
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "btn-danger";
+                deleteBtn.textContent = "Delete";
+                deleteBtn.addEventListener("click", () => deleteLink(link.id));
+
+                actions.appendChild(readBtn);
+                actions.appendChild(titleBtn);
+                actions.appendChild(tagsBtn);
+                actions.appendChild(deleteBtn);
+
+                item.appendChild(titleRow);
+                item.appendChild(meta);
+                item.appendChild(divider);
+                item.appendChild(actions);
+                container.appendChild(item);
             }
         }
 
@@ -152,11 +203,7 @@
             const response = await fetch("/api/links", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    url: url,
-                    tags: tags,
-                    status: statusInput.value
-                })
+                body: JSON.stringify({ url, tags, status: statusInput.value })
             });
 
             if (!response.ok) {
@@ -172,6 +219,7 @@
             urlInput.value = "";
             tagsInput.value = "";
             document.getElementById("url-status").textContent = "";
+            document.getElementById("url-status").className = "url-status";
             loadLinks();
         }
 
@@ -202,7 +250,7 @@
         async function editTags(link) {
             const current = link.tags.join(", ");
             const input = prompt("Edit tags (comma separated):", current);
-            if (input === null) return;  // user cancelled
+            if (input === null) return;
 
             const tags = input
                 .split(",")
@@ -212,7 +260,7 @@
             const response = await fetch(`/api/links/${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tags: tags })
+                body: JSON.stringify({ tags })
             });
             if (!response.ok) {
                 alert("Failed to update tags");
@@ -223,12 +271,11 @@
 
         async function editTitle(link) {
             const input = prompt("Enter a new title:");
-            if (input === null) return;
-            if (input == "") return;
+            if (input === null || input === "") return;
 
             const response = await fetch(`/api/links/${link.id}`, {
                 method: "PATCH",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title: input })
             });
             if (!response.ok) {
@@ -241,27 +288,27 @@
         function validateURL() {
             const urlInput = document.getElementById("url-input");
             const urlStatus = document.getElementById("url-status");
-
             const value = urlInput.value.trim();
 
             if (value === "") {
                 urlStatus.textContent = "";
+                urlStatus.className = "url-status";
                 return;
             }
 
             if (URL.canParse(value)) {
                 urlStatus.textContent = "valid URL";
+                urlStatus.className = "url-status valid";
             } else {
                 urlStatus.textContent = "not a valid URL";
+                urlStatus.className = "url-status invalid";
             }
         }
 
         loadLinks();
 
         document.getElementById("add-button").addEventListener("click", addLink);
-
         document.getElementById("url-input").addEventListener("input", validateURL);
-
         document.getElementById("filter-button").addEventListener("click", applyFilters);
     </script>
 </body>
