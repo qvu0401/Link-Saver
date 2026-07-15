@@ -54,7 +54,7 @@
 
     <script>
         const baseURL = window.APP_CONFIG.BACKEND_URL;
-        const apiURL = `${baseURL}/api/links/`;
+        const apiURL = `${baseURL}/api/links`;
         let allLinks = [];
 
         async function loadLinks() {
@@ -232,7 +232,7 @@
 
         async function toggleRead(link) {
             const newStatus = link.status === "read" ? "unread" : "read";
-            const response = await fetch(`${apiURL}${link.id}`, {
+            const response = await fetch(`${apiURL}/${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: newStatus })
@@ -246,7 +246,7 @@
 
         async function deleteLink(id) {
             if (!confirm("Delete this link?")) return;
-            const response = await fetch(`${apiURL}${id}`, { method: "DELETE" });
+            const response = await fetch(`${apiURL}/${id}`, { method: "DELETE" });
             if (!response.ok) {
                 alert("Failed to delete");
                 return;
@@ -264,7 +264,7 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const response = await fetch(`${apiURL}${link.id}`, {
+            const response = await fetch(`${apiURL}/${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tags })
@@ -280,7 +280,7 @@
             const input = prompt("Enter a new title:");
             if (input === null || input === "") return;
 
-            const response = await fetch(`${apiURL}${link.id}`, {
+            const response = await fetch(`${apiURL}/${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title: input })
