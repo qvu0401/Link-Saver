@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Saver</title>
     <link rel="stylesheet" href="style.css">
+    <script src="/config.js"></script>
 </head>
 <body>
     <div class="container">
@@ -52,10 +53,12 @@
     </div>
 
     <script>
+        const baseUrl = window.APP_CONFIG.BACKEND_URL;
+        const apiUrl = `${baseUrl}/api/links/`;
         let allLinks = [];
 
         async function loadLinks() {
-            const response = await fetch("/api/links");
+            const response = await fetch(apiURL);
             allLinks = await response.json();
             applyFilters();
         }
@@ -204,7 +207,7 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const response = await fetch("/api/links", {
+            const response = await fetch(apiURL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url, tags, status: statusInput.value })
@@ -229,7 +232,7 @@
 
         async function toggleRead(link) {
             const newStatus = link.status === "read" ? "unread" : "read";
-            const response = await fetch(`/api/links/${link.id}`, {
+            const response = await fetch(`${apiURL}${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status: newStatus })
@@ -261,7 +264,7 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const response = await fetch(`/api/links/${link.id}`, {
+            const response = await fetch(`${apiURL}${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ tags })
@@ -277,7 +280,7 @@
             const input = prompt("Enter a new title:");
             if (input === null || input === "") return;
 
-            const response = await fetch(`/api/links/${link.id}`, {
+            const response = await fetch(`${apiURL}${link.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title: input })
