@@ -36,8 +36,6 @@ http://localhost:8000/api
 | :--- | :--- | :--- |
 | **POST** | `/links` | Save a new link (title auto-fetched) |
 | **GET** | `/links` | List all links |
-| **GET** | `/links?status=unread` | Filter by status (`read` or `unread`) |
-| **GET** | `/links?tag=reading` | Filter by tag |
 | **PATCH** | `/links/:id` | Update title, status, or tags |
 | **DELETE** | `/links/:id` | Delete a link |
 
