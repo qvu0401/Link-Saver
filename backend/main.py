@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from database import init_db, get_db
 from models import LinkCreate, LinkUpdate
@@ -12,6 +13,19 @@ from fetcher import fetch_title
 
 app = FastAPI()
 init_db()
+
+origins = [
+    "http://localhost",
+    "http://localhost:80",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.exception_handler(sqlite3.IntegrityError)
 def sqlite_integrity_exception_handler(request: Request, exc: sqlite3.IntegrityError):
