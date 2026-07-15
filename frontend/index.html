@@ -53,8 +53,8 @@
     </div>
 
     <script>
-        const baseUrl = window.APP_CONFIG.BACKEND_URL;
-        const apiUrl = `${baseUrl}/api/links/`;
+        const baseURL = window.APP_CONFIG.BACKEND_URL;
+        const apiURL = `${baseURL}/api/links/`;
         let allLinks = [];
 
         async function loadLinks() {
@@ -246,7 +246,7 @@
 
         async function deleteLink(id) {
             if (!confirm("Delete this link?")) return;
-            const response = await fetch(`/api/links/${id}`, { method: "DELETE" });
+            const response = await fetch(`${apiURL}${id}`, { method: "DELETE" });
             if (!response.ok) {
                 alert("Failed to delete");
                 return;
