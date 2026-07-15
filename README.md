@@ -43,3 +43,4 @@ http://localhost:8000/api
 
 - No authentication, all links are visible to anyone who can reach port 8000.
 - Title fetching can fail. If a URL blocks HTTP requests or times out, the URL itself is used as the title.
+- Links filtering done on frontend, so less GET requests required, but client always receive every links.
