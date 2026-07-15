@@ -41,7 +41,6 @@ def create_link(link: LinkCreate):
         )
         conn.commit()
         new_id = cursor.lastrowid
-    conn.close()
 
     return {
         "id": new_id,
@@ -63,7 +62,6 @@ def list_links(status: str | None = None, tag: str | None = None):
             ).fetchall()
         else:
             rows = conn.execute("SELECT * FROM links ORDER BY date DESC").fetchall()
-    conn.close()
 
     result = [
         {
@@ -84,10 +82,9 @@ def list_links(status: str | None = None, tag: str | None = None):
 
 @app.delete("/api/links/{link_id}", status_code=204)
 def delete_link(link_id: int):
-    conn = get_db()
-    cursor = conn.execute("DELETE FROM links WHERE id = ?", (link_id,))
-    conn.commit()
-    conn.close()
+    with get_db() as conn:
+        cursor = conn.execute("DELETE FROM links WHERE id = ?", (link_id,))
+        conn.commit()
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Link not found")
 
@@ -107,12 +104,11 @@ def update_link(link_id: int, update: LinkUpdate):
     set_clause = ", ".join(f"{key} = ?" for key in fields)
     values = list(fields.values()) + [link_id]
 
-    conn = get_db()
-    cursor = conn.execute(f"UPDATE links SET {set_clause} WHERE id = ?", values)
+    with get_db() as conn:
+        cursor = conn.execute(f"UPDATE links SET {set_clause} WHERE id = ?", values)
 
-    conn.commit()
-    row = conn.execute("SELECT * FROM links WHERE id = ?", (link_id,)).fetchone()
-    conn.close()
+        conn.commit()
+        row = conn.execute("SELECT * FROM links WHERE id = ?", (link_id,)).fetchone()
 
     if cursor.rowcount == 0:
         raise HTTPException(status_code=404, detail="Link not found")
