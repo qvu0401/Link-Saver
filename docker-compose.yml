@@ -5,6 +5,9 @@ services:
       - "8000:8000"
     volumes:
       - database:/app/data
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=60
 
   frontend:
     build: ./frontend

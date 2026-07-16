@@ -8,59 +8,312 @@
     <script src="/config.js"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <!-- Login Form (hidden by default) -->
+    <div id="login-container" class="auth-container" style="display: none;">
+        <div class="auth-card">
             <h1>Link Saver</h1>
-            <p>Save and organize your links</p>
-        </header>
+            <p id="auth-mode-label">Login</p>
 
-        <div class="card">
-            <div class="section-label">Add a link</div>
-            <div class="form-row">
-                <div class="input-group">
-                    <input type="text" id="url-input" placeholder="Paste a URL...">
-                    <span class="url-status" id="url-status"></span>
+            <form id="auth-form">
+                <div class="form-group">
+                    <label for="auth-email">Email:</label>
+                    <input type="email" id="auth-email" required>
                 </div>
-                <input type="text" id="tags-input" placeholder="tags, comma, separated">
-                <select id="status-input">
-                    <option value="unread">Read Later</option>
-                    <option value="read">Read</option>
-                </select>
-                <button class="btn-primary" id="add-button">Save</button>
-            </div>
-        </div>
 
-        <div class="card">
-            <div class="section-label">Filter</div>
-            <div class="filter-row">
-                <input type="text" id="search-input" placeholder="Search titles...">
-                <input type="text" id="tag-filter" placeholder="Filter by tag">
-                <select id="status-filter">
-                    <option value="">Read &amp; Unread</option>
-                    <option value="unread">Unread</option>
-                    <option value="read">Read</option>
-                </select>
-                <button class="btn-primary" id="filter-button">Filter</button>
-            </div>
-        </div>
+                <div class="form-group">
+                    <label for="auth-password">Password:</label>
+                    <input type="password" id="auth-password" required>
+                </div>
 
-        <div class="links-header">
-            <h2>Your links</h2>
-            <span class="links-count" id="links-count"></span>
-        </div>
+                <div id="auth-error" class="error-message" style="display: none;"></div>
 
-        <div id="links"></div>
+                <button type="submit" class="btn-primary" id="auth-submit">Login</button>
+                <button type="button" class="btn-ghost" id="toggle-register" style="display: none;">Create Account</button>
+            </form>
+
+            <p id="toggle-text" style="display: none; text-align: center; margin-top: 1rem;">
+                <button type="button" class="btn-ghost" id="toggle-login-btn">Back to Login</button>
+            </p>
+        </div>
     </div>
+
+    <!-- Main App (hidden until authenticated) -->
+    <div id="app-container" style="display: none;">
+        <div class="container">
+            <header>
+                <div class="header-row">
+                    <div>
+                        <h1>Link Saver</h1>
+                        <p>Save and organize your links</p>
+                    </div>
+                    <div class="header-actions">
+                        <span id="current-user-email" class="current-user"></span>
+                        <button class="btn-ghost" id="logout-button">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="card">
+                <div class="section-label">Add a link</div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <input type="text" id="url-input" placeholder="Paste a URL...">
+                        <span class="url-status" id="url-status"></span>
+                    </div>
+                    <input type="text" id="tags-input" placeholder="tags, comma, separated">
+                    <select id="status-input">
+                        <option value="unread">Read Later</option>
+                        <option value="read">Read</option>
+                    </select>
+                    <button class="btn-primary" id="add-button">Save</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-label">Filter</div>
+                <div class="filter-row">
+                    <input type="text" id="search-input" placeholder="Search titles...">
+                    <input type="text" id="tag-filter" placeholder="Filter by tag">
+                    <select id="status-filter">
+                        <option value="">Read &amp; Unread</option>
+                        <option value="unread">Unread</option>
+                        <option value="read">Read</option>
+                    </select>
+                    <button class="btn-primary" id="filter-button">Filter</button>
+                </div>
+            </div>
+
+            <div class="links-header">
+                <h2>Your links</h2>
+                <span class="links-count" id="links-count"></span>
+            </div>
+
+            <div id="links"></div>
+        </div>
+    </div>
+
+    <style>
+        .auth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-card h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .auth-card p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+        }
+
+        #auth-form button {
+            width: 100%;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .current-user {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
 
     <script>
         const baseURL = window.APP_CONFIG.BACKEND_URL;
+        const authURL = `${baseURL}/api/auth`;
         const apiURL = `${baseURL}/api/links`;
         let allLinks = [];
+        let isRegistering = false;
+
+        // ============ AUTH FUNCTIONS ============
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${authURL}/me`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.email;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function showLoginForm() {
+            document.getElementById('login-container').style.display = 'flex';
+            document.getElementById('app-container').style.display = 'none';
+            isRegistering = false;
+            updateAuthForm();
+        }
+
+        function showApp(email) {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('current-user-email').textContent = email;
+            loadLinks();
+        }
+
+        function updateAuthForm() {
+            const label = document.getElementById('auth-mode-label');
+            const submit = document.getElementById('auth-submit');
+            const toggleRegister = document.getElementById('toggle-register');
+            const toggleText = document.getElementById('toggle-text');
+            const toggleLoginBtn = document.getElementById('toggle-login-btn');
+
+            if (isRegistering) {
+                label.textContent = 'Create Account';
+                submit.textContent = 'Register';
+                toggleRegister.style.display = 'none';
+                toggleText.style.display = 'block';
+            } else {
+                label.textContent = 'Login';
+                submit.textContent = 'Login';
+                toggleRegister.style.display = 'inline-block';
+                toggleText.style.display = 'none';
+            }
+        }
+
+        async function submitAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const errorDiv = document.getElementById('auth-error');
+
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+
+            if (!email || !password) {
+                errorDiv.textContent = 'Please fill in all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const endpoint = isRegistering ? `${authURL}/register` : `${authURL}/login`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('auth-form').reset();
+                    showApp(data.email);
+                } else {
+                    const errorData = await response.json();
+                    errorDiv.textContent = errorData.detail || 'Authentication failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (e) {
+                errorDiv.textContent = 'Network error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${authURL}/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (e) {
+                console.error('Logout request failed:', e);
+            }
+            showLoginForm();
+        }
+
+        // ============ APP FUNCTIONS ============
 
         async function loadLinks() {
-            const response = await fetch(apiURL);
-            allLinks = await response.json();
-            applyFilters();
+            try {
+                const response = await fetch(apiURL, {
+                    credentials: 'include'
+                });
+
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert('Failed to load links');
+                    return;
+                }
+
+                allLinks = await response.json();
+                applyFilters();
+            } catch (e) {
+                console.error('Error loading links:', e);
+                alert('Failed to load links');
+            }
         }
 
         function applyFilters() {
@@ -207,51 +460,88 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const response = await fetch(apiURL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url, tags, status: statusInput.value })
-            });
+            try {
+                const response = await fetch(apiURL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'include',
+                    body: JSON.stringify({ url, tags, status: statusInput.value })
+                });
 
-            if (!response.ok) {
-                try {
-                    const errorData = await response.json();
-                    alert(errorData.detail || "Failed to save link");
-                } catch (e) {
-                    alert("Failed to save link");
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
                 }
-                return;
-            }
 
-            urlInput.value = "";
-            tagsInput.value = "";
-            document.getElementById("url-status").textContent = "";
-            document.getElementById("url-status").className = "url-status";
-            loadLinks();
+                if (!response.ok) {
+                    try {
+                        const errorData = await response.json();
+                        alert(errorData.detail || "Failed to save link");
+                    } catch (e) {
+                        alert("Failed to save link");
+                    }
+                    return;
+                }
+
+                urlInput.value = "";
+                tagsInput.value = "";
+                document.getElementById("url-status").textContent = "";
+                document.getElementById("url-status").className = "url-status";
+                loadLinks();
+            } catch (e) {
+                console.error('Error adding link:', e);
+                alert("Failed to save link");
+            }
         }
 
         async function toggleRead(link) {
             const newStatus = link.status === "read" ? "unread" : "read";
-            const response = await fetch(`${apiURL}/${link.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ status: newStatus })
-            });
-            if (!response.ok) {
+            try {
+                const response = await fetch(`${apiURL}/${link.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'include',
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert("Failed to update status");
+                    return;
+                }
+                loadLinks();
+            } catch (e) {
+                console.error('Error toggling read:', e);
                 alert("Failed to update status");
-                return;
             }
-            loadLinks();
         }
 
         async function deleteLink(id) {
             if (!confirm("Delete this link?")) return;
-            const response = await fetch(`${apiURL}/${id}`, { method: "DELETE" });
-            if (!response.ok) {
+            try {
+                const response = await fetch(`${apiURL}/${id}`, {
+                    method: "DELETE",
+                    credentials: 'include'
+                });
+
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert("Failed to delete");
+                    return;
+                }
+                loadLinks();
+            } catch (e) {
+                console.error('Error deleting link:', e);
                 alert("Failed to delete");
-                return;
             }
-            loadLinks();
         }
 
         async function editTags(link) {
@@ -264,32 +554,56 @@
                 .map(t => t.trim())
                 .filter(t => t.length > 0);
 
-            const response = await fetch(`${apiURL}/${link.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tags })
-            });
-            if (!response.ok) {
+            try {
+                const response = await fetch(`${apiURL}/${link.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'include',
+                    body: JSON.stringify({ tags })
+                });
+
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert("Failed to update tags");
+                    return;
+                }
+                loadLinks();
+            } catch (e) {
+                console.error('Error editing tags:', e);
                 alert("Failed to update tags");
-                return;
             }
-            loadLinks();
         }
 
         async function editTitle(link) {
             const input = prompt("Enter a new title:");
             if (input === null || input === "") return;
 
-            const response = await fetch(`${apiURL}/${link.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: input })
-            });
-            if (!response.ok) {
+            try {
+                const response = await fetch(`${apiURL}/${link.id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'include',
+                    body: JSON.stringify({ title: input })
+                });
+
+                if (response.status === 401) {
+                    showLoginForm();
+                    return;
+                }
+
+                if (!response.ok) {
+                    alert("Failed to update title");
+                    return;
+                }
+                loadLinks();
+            } catch (e) {
+                console.error('Error editing title:', e);
                 alert("Failed to update title");
-                return;
             }
-            loadLinks();
         }
 
         function validateURL() {
@@ -312,11 +626,32 @@
             }
         }
 
-        loadLinks();
+        // ============ INITIALIZATION ============
+
+        document.getElementById("auth-form").addEventListener("submit", submitAuth);
+        document.getElementById("toggle-register").addEventListener("click", () => {
+            isRegistering = true;
+            updateAuthForm();
+        });
+        document.getElementById("toggle-login-btn").addEventListener("click", () => {
+            isRegistering = false;
+            updateAuthForm();
+        });
+        document.getElementById("logout-button").addEventListener("click", logout);
 
         document.getElementById("add-button").addEventListener("click", addLink);
         document.getElementById("url-input").addEventListener("input", validateURL);
         document.getElementById("filter-button").addEventListener("click", applyFilters);
+
+        // Check auth on page load
+        (async () => {
+            const email = await checkAuth();
+            if (email) {
+                showApp(email);
+            } else {
+                showLoginForm();
+            }
+        })();
     </script>
 </body>
 </html>
