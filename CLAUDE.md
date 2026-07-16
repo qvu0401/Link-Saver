@@ -128,6 +128,21 @@ CREATE TABLE links (
 
 ## Common Commands
 
+**Quick Start** — Full Docker setup (recommended):
+```bash
+docker compose up           # Start both frontend and backend
+```
+
+**Local Backend Dev** — Test changes without Docker:
+```bash
+cd backend
+pip install -r requirements.txt pytest pytest-cov
+export SECRET_KEY="dev-key-min-32-bytes"
+pytest                      # Run all tests
+pytest test_api.py -v       # Run specific test file
+uvicorn main:app --reload   # Start with hot-reload
+```
+
 ### Build & Run (Development)
 ```bash
 cd "Link Saver"
@@ -151,25 +166,54 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 pip install -r requirements.txt
+pip install pytest pytest-cov  # Install test dependencies (not in requirements.txt)
 
 # Set required environment variables
 export SECRET_KEY="dev-secret-key-32-bytes-minimum-"
 export ACCESS_TOKEN_EXPIRE_MINUTES="60"
 
-# Run tests
+# Run all tests
 pytest
 
-# Run all tests with coverage
-pytest --cov=.
+# Run tests with coverage report
+pytest --cov=. --cov-report=html
+
+# Run specific test file
+pytest test_api.py -v
+
+# Run specific test by name
+pytest test_api.py::test_full_lifecycle -v
+
+# Run tests matching a pattern
+pytest -k "multi_user" -v
 
 # Run with hot-reload (requires installing uvicorn[standard])
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 **Note**:
-- `SECRET_KEY` is REQUIRED. App will fail at startup without it.
+- `SECRET_KEY` is REQUIRED. App will fail at startup without it. Use any 32+ byte string for local dev.
+- Pytest and pytest-cov must be installed separately (`pip install pytest pytest-cov`) — not in requirements.txt.
+- Test fixtures use monkeypatch to mock database and environment variables, so tests don't require actual SECRET_KEY export.
 - If running backend locally, frontend needs `BACKEND_URL=http://localhost:8000`. Docker Compose handles this automatically.
-- Test fixture uses monkeypatch to mock database and environment variables, so tests don't require actual SECRET_KEY export.
+
+### Local Environment Setup (.env file)
+
+For local development without Docker, create a `.env` file in the project root (or `backend/.env`):
+
+```bash
+# backend/.env
+SECRET_KEY=your-32-byte-dev-key-here
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+Or set environment variables in your shell:
+```bash
+export SECRET_KEY="dev-key-minimum-32-bytes"
+export ACCESS_TOKEN_EXPIRE_MINUTES="60"
+```
+
+Python-dotenv (in requirements.txt) automatically loads `.env` for local development. Docker Compose reads from `docker-compose.yml` environment section.
 
 ### Frontend Development (Local, static files only)
 
@@ -178,7 +222,7 @@ Frontend is static HTML/CSS/JS — can be opened directly in browser or served w
 cd frontend
 python -m http.server 8080
 ```
-Then visit http://localhost:8080, but API calls will fail unless backend is running.
+Then visit http://localhost:8080, but API calls will fail unless backend is running at `http://localhost:8000`.
 
 ## Key Implementation Details
 
@@ -297,13 +341,28 @@ Set in `docker-compose.yml` backend service or `.env` file for local development
 - Monkeypatch to redirect SQLite path to temp file for isolation
 - Multi-user fixtures create separate users with separate cookies
 
-**Run**:
+**Setup & Run** (from `backend/` directory):
 ```bash
-cd backend
-pytest                              # Run all 21 tests
-pytest test_api.py test_auth_endpoints.py test_auth.py -v  # Verbose
-pytest -k test_multi_user           # Run specific test
-pytest --cov=.                      # Coverage report
+# Install test dependencies first
+pip install pytest pytest-cov
+
+# Run all 21 tests
+pytest
+
+# Run tests with verbose output
+pytest -v
+
+# Run specific test file
+pytest test_auth.py -v
+
+# Run specific test function
+pytest test_api.py::test_full_lifecycle -v
+
+# Run tests matching pattern
+pytest -k "multi_user" -v
+
+# Generate coverage report
+pytest --cov=. --cov-report=html
 ```
 
 **Coverage**: 80%+ achieved across all modules (auth, dependencies, routers, database)
